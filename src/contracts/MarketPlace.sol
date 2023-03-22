@@ -27,11 +27,17 @@ contract Marketplace {
         name = "First Marketplace";
     }
 
-    function createProduct(
-        string memory _name,uint _price
-    ) public {
+    function createProduct(string memory _name, uint _price) public {
+        require(bytes(_name).length > 0, "Name is required");
+        require(_price > 0, "Price is required");
         totalProducts++;
-        products[totalProducts]=Product(totalProducts,_name,_price,false,msg.sender);
-        emit productCreated(totalProducts,_name,_price,false,msg.sender);
+        products[totalProducts] = Product(
+            totalProducts,
+            _name,
+            _price,
+            false,
+            msg.sender
+        );
+        emit productCreated(totalProducts, _name, _price, false, msg.sender);
     }
 }

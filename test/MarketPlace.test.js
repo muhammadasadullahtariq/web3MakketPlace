@@ -1,5 +1,9 @@
 const { assert } = require("chai");
 
+require("chai")
+  .use(require("chai-as-promised"))
+  .should();
+
 const MarketPlace = artifacts.require("MarketPlace");
 
 contract("MarketPlace", ([deployer, seller, buyer]) => {
@@ -30,8 +34,9 @@ contract("MarketPlace", ([deployer, seller, buyer]) => {
   describe("product", async () => {
     //before it is use to run the function before testing the desired values
     //here we will test the values
-      before(async () => {
-        result = await marketplace.createProduct(
+    let result;
+    before(async () => {
+      result = await marketplace.createProduct(
         "macbook",
         web3.utils.toWei("1", "Ether"),
         {
@@ -42,6 +47,18 @@ contract("MarketPlace", ([deployer, seller, buyer]) => {
 
     it("create product", async () => {
       console.log(result.logs);
+    });
+
+    it("not create without name", async () => {
+      await marketplace.createProduct("", web3.utils.toWei("1", "Ether"), {
+        from: seller,
+      }).should.be.rejected;
+    });
+
+    it("not create without price or price is 0", async () => {
+      await marketplace.createProduct("abc", {
+        from: seller,
+      }).should.be.rejected;
     });
   });
 });
