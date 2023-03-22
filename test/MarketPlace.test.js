@@ -61,4 +61,20 @@ contract("MarketPlace", ([deployer, seller, buyer]) => {
       }).should.be.rejected;
     });
   });
+
+  describe("purchase product", async () => {
+    let totalProducts, result;
+    before(async () => {
+      totalProducts = await marketplace.totalProducts();
+      result = await marketplace.purchaseProduct(0, {
+        from: buyer,
+        value: web3.utils.toWei("1", "Ether"),
+      });
+    });
+
+    it("checking is product purchased successfully", () => {
+      console.log("total products are", totalProducts.toNumber());
+      console.log(result);
+    });
+  });
 });
