@@ -8,7 +8,7 @@ const App = () => {
   const [accAddress, setAccAddress] = useState("");
   const [networkId, setNetworkId] = useState("");
   useEffect(() => {
-    loadWeb3();
+    //loadWeb3();
   }, []);
 
   const loadWeb3 = async () => {
