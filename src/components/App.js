@@ -3,13 +3,29 @@ import logo from "../logo.png";
 import Web3 from "web3";
 import "./App.css";
 import marketPlace from "../abis/Marketplace.json";
+import { InputForm } from "./iputForm";
+import { Box, Paper, TextField, Button, Alert } from "@mui/material";
 
 const App = () => {
   const [accAddress, setAccAddress] = useState("");
   const [networkId, setNetworkId] = useState("");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [marketplace, setMarketplace] = useState(null);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [productCount, setProductCount] = useState(0);
   useEffect(() => {
-    //loadWeb3();
+    loadWeb3();
   }, []);
+
+  const createProduct = async () => {
+    const responce = await marketplace.methods
+      .createProduct(name, price)
+      .send({ from: accAddress });
+    console.log(responce);
+    Alert("Product created");
+  };
 
   const loadWeb3 = async () => {
     if (window.ethereum) {
@@ -30,9 +46,8 @@ const App = () => {
     const accAddress = await web3.eth.getAccounts();
     setAccAddress(accAddress[0]);
 
-    //get the network id
     const networkId = await web3.eth.net.getId();
-    console.log("network id is",networkId);
+    console.log("network id is", networkId);
 
     const networkData = marketPlace.networks[networkId];
     if (networkData) {
@@ -40,12 +55,30 @@ const App = () => {
         marketPlace.abi,
         networkData.address
       );
+      setMarketplace(marketplace);
+      const product = await marketplace.methods.totalProducts().call();
+      console.log("product is", product.toString());
+      setProductCount(parseInt(product.toString()));
+      loadProducts(marketplace, parseInt(product.toString()));
       alert(
         "Contract connect hu giya chaal ab season dhk la baki subha kr lai"
       );
     } else {
       alert("No contract found on this network");
     }
+  };
+
+  const loadProducts = async (market, total) => {
+    console.log("marketplace is", market);
+    console.log("product count is", total);
+    var pro = [];
+    for (var i = 1; i <= total; i++) {
+      const product = await market.methods.products(i).call();
+      console.log("product is", product);
+      pro.push(product);
+    }
+    console.log("products are", pro);
+    setProducts(pro);
   };
 
   return (
@@ -69,36 +102,67 @@ const App = () => {
           {accAddress}
         </p>
       </nav>
-      <div className="container-fluid mt-5">
-        <div className="row">
-          <main role="main" className="col-lg-12 d-flex text-center">
-            <div className="content mr-auto ml-auto">
-              <a
-                href="http://www.dappuniversity.com/bootcamp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img src={logo} className="App-logo" alt="logo" />
-              </a>
-              <h1>Witcher Starter Kit</h1>
-              <p>
-                Edit <code>src/components/App.js</code> and save to reload.
-              </p>
-              <a
-                className="App-link"
-                href="http://www.dappuniversity.com/bootcamp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                LEARN BLOCKCHAIN{" "}
-                <u>
-                  <b>NOW! </b>
-                </u>
-              </a>
-            </div>
-          </main>
-        </div>
-      </div>
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          maxWidth: 700,
+          margin: "auto",
+        }}
+      >
+        <Paper
+          sx={{
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            maxWidth: 500,
+            margin: "auto",
+          }}
+        >
+          <h1>Input Form</h1>
+          <div
+            style={{
+              height: 20,
+            }}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Enter name"
+            variant="outlined"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
+          />
+          <div
+            style={{
+              height: 20,
+            }}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Enter price"
+            value={price}
+            variant="outlined"
+            onChange={(e) => {
+              setPrice(e.target.value);
+            }}
+          />
+
+          <div
+            style={{
+              height: 20,
+            }}
+          />
+          <Button variant="contained" onClick={createProduct}>
+            Submit
+          </Button>
+        </Paper>
+        <InputForm products={products} />
+      </Box>
     </div>
   );
 };

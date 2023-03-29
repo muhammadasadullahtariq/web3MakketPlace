@@ -35,9 +35,14 @@ contract Marketplace {
         name = "First Marketplace";
     }
 
+    function increaseProductCount() public {
+        totalProducts++;
+    }
+
     function createProduct(string memory _name, uint _price) public {
         require(bytes(_name).length > 0, "Name is required");
         require(_price > 0, "Price is required");
+        totalProducts++;
         products[totalProducts] = Product(
             totalProducts,
             _name,
@@ -45,7 +50,7 @@ contract Marketplace {
             false,
             msg.sender
         );
-        emit productCreated(totalProducts++, _name, _price, false, msg.sender);
+        emit productCreated(totalProducts, _name, _price, false, msg.sender);
     }
 
     function purchaseProduct(uint _id) public payable {
